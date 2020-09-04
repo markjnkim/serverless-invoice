@@ -1,73 +1,55 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faThumbsDown, faThumbsUp, faImage, faMoneyCheckAlt, faSearchDollar } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbsDown, faThumbsUp, faImage, faMoneyCheckAlt, faSearchDollar } from '@fortawesome/free-solid-svg-icons';
 
-class App extends Component {
-  state = {
-    isLoading: false,
-    hasLoaded: false,
-    localInvoices: [
-      {
-        "id": "100",
-        "Vendor": "Hankook",
-        "Amount": "$18,000",
-        "invoice": "1123",
-        "Date": "08/21/2019"
-      },
-      {
-        "id": "200",
-        "Vendor": "Hankook",
-        "Amount": "$18,000",
-        "invoice": "1123",
-        "Date": "08/21/2019"
-      }
-    ]
-  }
+const App = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [invoices, setInvoices] = useState([]);
 
-  remove(id) {
+  const remove = (id) => {
     console.log(id);
-    let updateedInvoices = [...this.state.invoices].filter(i => i.id !== id);
-    this.setState({ invoices: updateedInvoices });
+    let updateedInvoices = [...invoices].filter(i => i.id !== id)
+    setInvoices(updateedInvoices);
   }
 
-  async componentDidMount() {
-    const response = await fetch("https://r83gdnbzr7.execute-api.us-east-2.amazonaws.com/dev");
-    const body = await response.json();
-    this.setState({ invoices: body, isLoading: false, hasLoaded: true });
-    console.log("body", this.state.invoices);
-  }
-
-  render() {
-    const isLoading = this.state.isLoading;
-    const hasLoaded = this.state.hasLoaded;
-    const allinvoices = hasLoaded ? this.state.invoices : this.state.localInvoices;
-    console.log("render", this.state.invoices)
-    if (isLoading) {
-      return (<div>Loading...</div>);
-    }
-
-    let invoices =
-      allinvoices.map(invoice =>
+  const popInvoices = () => {
+    return (
+      invoices.map(invoice =>
         <tr key={invoice.id}>
           <td>{invoice.Vendor}</td>
           <td>{invoice.Amount}</td>
           <td>{invoice.Invoice}</td>
           <td>{invoice.Date}</td>
-          <td><Button className="btn btn-lg btn-success" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsUp} /> OK </Button></td>
-          <td><Button className="btn btn-lg btn-danger" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsDown} /> NOK </Button></td>
-          <td><Button className="btn btn-lg btn-info" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faMoneyCheckAlt} /> 50% </Button></td>
-          <td><Button className="btn btn-lg btn-warning" onClick={() => this.remove(invoice.id)} ><FontAwesomeIcon icon={faSearchDollar} /> ?? </Button></td>
-          <td><Button className="btn btn-lg btn-info" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faImage} /> Image </Button></td>
-        </tr>
-      )
+          <td><Button className="btn btn-lg btn-success" onClick={() => remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsUp} /> OK </Button></td>
+          <td><Button className="btn btn-lg btn-danger" onClick={() => remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsDown} /> NOK </Button></td>
+          <td><Button className="btn btn-lg btn-info" onClick={() => remove(invoice.id)} > <FontAwesomeIcon icon={faMoneyCheckAlt} /> 50% </Button></td>
+          <td><Button className="btn btn-lg btn-warning" onClick={() => remove(invoice.id)} ><FontAwesomeIcon icon={faSearchDollar} /> ?? </Button></td>
+          <td><Button className="btn btn-lg btn-info" onClick={() => remove(invoice.id)} > <FontAwesomeIcon icon={faImage} /> Image </Button></td>
+        </tr>)
+    )
+  }
 
-    return (
+  useEffect( () => {
+      async function fetchData() {
+      const response = await fetch("https://r83gdnbzr7.execute-api.us-east-2.amazonaws.com/dev");
+      const body = await response.json();
+      setInvoices(body);
+      setHasLoaded(true);
+      setIsLoading(false);
+      console.log("BODY", invoices, "hasLoaded", hasLoaded, "isLoading", isLoading);
+      }
+      fetchData();
+  }, []);
 
-      <div className="container mt-4 rounded center">
+  return (
+    <>
+      {isLoading && <div>Loading...</div>}
+      <div className="container mt-4 center">
         <div className="row">
           <div className="col-12">
-            <h4>Pending Invoices - The Gibi Company</h4>
+            <h4>Pending Invoices - The GibiByte Company</h4>
           </div>
         </div>
         <div className="row">
@@ -75,7 +57,7 @@ class App extends Component {
             <Table dark responsive striped bordered hover>
               <thead>
                 <tr>
-                  <th >Vendor</th>
+                  <th>Vendor</th>
                   <th>Amount</th>
                   <th>Invoice #</th>
                   <th>Date</th>
@@ -84,14 +66,14 @@ class App extends Component {
                 </tr>
               </thead>
               <tbody>
-                {allinvoices.length === 0 ? <td colSpan="9">All caught up!</td> : invoices}
+                {invoices.length ? popInvoices() :<td colSpan="9">All caught up!</td>}
               </tbody>
             </Table>
           </div>
         </div>
       </div>
-    );
-  }
+    </>
+  );
 }
 
 export default App;
