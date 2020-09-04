@@ -6,6 +6,7 @@ import { faThumbsDown, faThumbsUp, faImage, faMoneyCheckAlt, faSearchDollar } fr
 class App extends Component {
   state = {
     isLoading: false,
+    hasLoaded: false,
     localInvoices: [
       {
         "id": "100",
@@ -16,13 +17,6 @@ class App extends Component {
       },
       {
         "id": "200",
-        "Vendor": "Hankook",
-        "Amount": "$18,000",
-        "invoice": "1123",
-        "Date": "08/21/2019"
-      },
-      {
-        "id": "300",
         "Vendor": "Hankook",
         "Amount": "$18,000",
         "invoice": "1123",
@@ -40,13 +34,14 @@ class App extends Component {
   async componentDidMount() {
     const response = await fetch("https://r83gdnbzr7.execute-api.us-east-2.amazonaws.com/dev");
     const body = await response.json();
-    this.setState({ invoices: body, isLoading: false });
+    this.setState({ invoices: body, isLoading: false, hasLoaded: true });
     console.log("body", this.state.invoices);
   }
 
   render() {
     const isLoading = this.state.isLoading;
-    const allinvoices = this.state.localInvoices;
+    const hasLoaded = this.state.hasLoaded;
+    const allinvoices = hasLoaded ? this.state.invoices : this.state.localInvoices;
     console.log("render", this.state.invoices)
     if (isLoading) {
       return (<div>Loading...</div>);
@@ -57,7 +52,7 @@ class App extends Component {
         <tr key={invoice.id}>
           <td>{invoice.Vendor}</td>
           <td>{invoice.Amount}</td>
-          <td>{invoice.invoice}</td>
+          <td>{invoice.Invoice}</td>
           <td>{invoice.Date}</td>
           <td><Button className="btn btn-lg btn-success" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsUp} /> OK </Button></td>
           <td><Button className="btn btn-lg btn-danger" onClick={() => this.remove(invoice.id)} > <FontAwesomeIcon icon={faThumbsDown} /> NOK </Button></td>
