@@ -33,13 +33,14 @@ const App = () => {
 
   useEffect( () => {
       async function fetchData() {
+        // API Gateway 
       const response = await fetch("https://r83gdnbzr7.execute-api.us-east-2.amazonaws.com/dev");
       const body = await response.json();
       setInvoices(body);
       setHasLoaded(true);
       setIsLoading(false);
-      console.log("BODY", invoices, "hasLoaded", hasLoaded, "isLoading", isLoading);
       }
+      
       fetchData();
   }, []);
 
